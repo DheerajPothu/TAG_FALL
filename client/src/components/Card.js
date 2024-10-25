@@ -1,282 +1,227 @@
-/* import React, { useState } from 'react';
-import axios from 'axios';
-
-const Card = ({ img, title, season, day, date, id, category, onUpdate }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedTitle, setEditedTitle] = useState(title);
-    const [editedSeason, setEditedSeason] = useState(season);
-    const [editedDay, setEditedDay] = useState(day);
-    const [editedDate, setEditedDate] = useState(date);
-    const [editedCategory, setEditedCategory] = useState(category);
-
-    const handleEdit = () => {
-        setIsEditing(true);
-    };
-
-    const handleSave = () => {
-        setIsEditing(false);
-        axios.put(`http://127.0.0.1:5004/update/${id}`, {
-            title: editedTitle,
-            season: editedSeason,
-            day: editedDay,
-            date: editedDate,
-            category: editedCategory
-        })
-            .then(response => {
-                console.log('Item updated:', response.data);
-                // Notify parent component about the update
-                if (onUpdate) onUpdate(response.data);
-            })
-            .catch(error => console.error('Error updating item:', error));
-    };
-
-    return (
-        <section className="card">
-            <img src={img} alt={title} className="card-img" />
-            <div className="card-details">
-                {isEditing ? (
-                    <>
-                        <input
-                            type="text"
-                            className="card-title"
-                            value={editedTitle}
-                            onChange={(e) => setEditedTitle(e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            className="card-season"
-                            value={editedSeason}
-                            onChange={(e) => setEditedSeason(e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            className="card-day"
-                            value={editedDay}
-                            onChange={(e) => setEditedDay(e.target.value)}
-                        />
-                        <input
-                            type="text"
-                            className="card-date"
-                            value={editedDate}
-                            onChange={(e) => setEditedDate(e.target.value)}
-                        />
-
-                        <input
-                            type="text"
-                            className="card-category"
-                            value={editedCategory}
-                            onChange={(e) => setEditedCategory(e.target.value)}
-                        />
-                        <button onClick={handleSave}>Save</button>
-                    </>
-                ) : (
-                    <>
-                        <h3 className="card-title">{editedTitle}</h3>
-                        <p className="card-season">{editedSeason}</p>
-                        <p className="card-day">{editedDay}</p>
-                        <p className="card-date">{editedDate}</p>
-
-                        <button onClick={handleEdit}>Edit</button>
-                    </>
-                )}
-            </div>
-        </section>
-    );
-};
-
-export default Card; */
-
-// code till sprint 1 
-/*  import React, { useState } from "react";
-
-const Card = ({ img, title, season, day, date, category, company, id, onUpdate }) => {
-  const [tags, setTags] = useState(category ? category.split(",") : []); // Initialize with existing categories
-  const [isEditing, setIsEditing] = useState(null); // Track which tag is being edited
-  const [newTag, setNewTag] = useState(""); // For adding new tags
-
-  // Function to handle changes to an existing tag
-const handleTagChange = (index, event) => {
-    const updatedTags = [...tags];
-    updatedTags[index] = event.target.value; // Update the tag at the specific index
-    setTags(updatedTags);
-};
-
-  // Function to save the tag after editing
-const handleTagSave = (index) => {
-    setIsEditing(null); // Exit editing mode
-    const updatedCategory = tags.join(","); // Join the updated tags back into a string
-    onUpdate({ id, category: updatedCategory }); // Notify the parent component
-};
-
-  // Function to handle new tag input change
-const handleNewTagChange = (event) => {
-    setNewTag(event.target.value);
-};
-
-  // Function to add a new tag
-const handleAddTag = () => {
-    if (newTag.trim()) {
-      setTags([...tags, newTag.trim()]); // Add new tag to the list
-      setNewTag(""); // Reset the input field
-      const updatedCategory = [...tags, newTag.trim()].join(","); // Update category with new tag
-      onUpdate({ id, category: updatedCategory }); // Notify parent component
-    }
-};
-
-  // Function to delete a tag
-const handleDeleteTag = (index) => {
-    const updatedTags = tags.filter((_, i) => i !== index); // Remove the tag at the specific index
-    setTags(updatedTags);
-    const updatedCategory = updatedTags.join(","); // Update category after deleting the tag
-    onUpdate({ id, category: updatedCategory }); // Notify parent component
-};
-
-return (
-    <div className="card">
-    <img src={img} alt={title} />
-    <div className="card-content">
-        <h3>{title}</h3>
-        <p>Season: {season}</p>
-        <p>Day: {day}</p>
-        <p>Date: {date}</p>
-        <p>Company: {company}</p>
-
-        {/* Tag Display and Editing */ /*}---------------------------------
-        <div className="tag-box">
-        {tags.map((tag, index) => (
-            <div className="tag" key={index}>
-            {isEditing === index ? (
-                <input
-                type="text"
-                value={tag}
-                  onChange={(e) => handleTagChange(index, e)} // Handle tag changes
-                  onBlur={() => handleTagSave(index)} // Save on blur
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") handleTagSave(index); // Save on Enter key
-                }}
-                autoFocus
-                />
-            ) : (
-                <>
-                  <span onClick={() => setIsEditing(index)}>{tag}</span> {/* Click to edit tag */ /*}--------------------
-                  <button onClick={() => handleDeleteTag(index)}>x</button> {/* Delete tag */ /*}----------------
-                </>
-            )}
-            </div>
-        ))}
-
-          {/* Input for Adding New Tags */  /*}---------------------
-        <div className="new-tag">
-            <input
-            type="text"
-            value={newTag}
-            onChange={handleNewTagChange}
-            placeholder="Add new tag"
-            />
-            <button onClick={handleAddTag}>Add</button> {/* Button to add a new tag */  /*}---------
-        </div>
-        </div>
-    </div>
-    </div>
-);
-};
-
-export default Card; ------------------------------*/
-
-// testing code
-
 import React, { useState } from "react";
+import { FiHeart } from "react-icons/fi";
 
-const Card = ({ img, title, season, day, date, category, company, id, onUpdate }) => {
-  const [tags, setTags] = useState(category ? category.split(",") : []); // Initialize with existing categories
-  const [isEditing, setIsEditing] = useState(null); // Track which tag is being edited
-  const [newTag, setNewTag] = useState(""); // For adding new tags
+const Card = ({
+  category,
+  company,
+  date,
+  day,
+  displayImgSrc,
+  fileType,
+  id,
+  season,
+  sessionId,
+  src,
+  tags: initialTags,
+  title,
+  favorite: initialFavorite, // Use favorite from props
+  onUpdate,
+  onToggleFavorite
+}) => {
+  const [tags, setTags] = useState(Array.isArray(initialTags) ? initialTags : []);
+  const [isEditing, setIsEditing] = useState(null);
+  const [newTag, setNewTag] = useState("");
+  const [editNewTag, setEditNewTag] = useState("");
+  const [favorite, setFavorite] = useState(initialFavorite);
 
-  // Function to handle changes to an existing tag
-const handleTagChange = (index, event) => {
-    const updatedTags = [...tags];
-    updatedTags[index] = event.target.value; // Update the tag at the specific index
-    setTags(updatedTags);
-};
-
-  // Function to save the tag after editing
-const handleTagSave = (index) => {
-    setIsEditing(null); // Exit editing mode
-    const updatedCategory = tags.join(","); // Join the updated tags back into a string
-    onUpdate({ id, category: updatedCategory }); // Notify the parent component
-};
-
-  // Function to handle new tag input change
-const handleNewTagChange = (event) => {
+  const handleNewTagChange = (event) => {
     setNewTag(event.target.value);
-};
+  };
 
-  // Function to add a new tag
-const handleAddTag = () => {
+  const handleEditChange = (event) => {
+    setEditNewTag(event.target.value);
+  };
+
+  const handleAddTag = () => {
     if (newTag.trim()) {
-      setTags([...tags, newTag.trim()]); // Add new tag to the list
-      setNewTag(""); // Reset the input field
-      const updatedCategory = [...tags, newTag.trim()].join(","); // Update category with new tag
-      onUpdate({ id, category: updatedCategory }); // Notify parent component
+      const updatedTags = [...tags, newTag.trim()];
+      setTags(updatedTags);
+      setNewTag("");
+      const object = { ...itemData, tags: updatedTags };
+      onUpdate({ id, object });
     }
-};
+  };
 
-  // Function to delete a tag
-const handleDeleteTag = (index) => {
-    const updatedTags = tags.filter((_, i) => i !== index); // Remove the tag at the specific index
+  const handleEditTag = (index) => {
+    if (editNewTag.trim()) {
+      const updatedTags = [...tags];
+      updatedTags[index] = editNewTag.trim();
+      setTags(updatedTags);
+      setEditNewTag("");
+      const object = { ...itemData, tags: updatedTags };
+      onUpdate({ id, object });
+      setIsEditing(null);
+    }
+  };
+
+  const handleDeleteTag = (index) => {
+    const updatedTags = tags.filter((_, i) => i !== index);
     setTags(updatedTags);
-    const updatedCategory = updatedTags.join(","); // Update category after deleting the tag
-    onUpdate({ id, category: updatedCategory }); // Notify parent component
-};
+    const object = { ...itemData, tags: updatedTags };
+    onUpdate({ id, object });
+  };
 
-return (
-    <div className="card">
-    <img src={img} alt={title} />
-    <div className="card-content">
-        <h3>{title}</h3>
-        <p>Season: {season}</p>
-        <p>Day: {day}</p>
-        <p>Date: {date}</p>
-        <p>Company: {company}</p>
+  const handleToggleFavorite = () => {
+    setFavorite((prev) => !prev);
+    onToggleFavorite();
+    const object = { ...itemData, favorite: !favorite };
+    onUpdate({ id, object });
+  };
 
-        {/* Tag Display and Editing */ }
-        <div className="tag-box">
-        {tags.map((tag, index) => (
-            <div className="tag" key={index}>
-            {isEditing === index ? (
+  const itemData = {
+    category,
+    company,
+    date,
+    day,
+    displayImgSrc,
+    fileType,
+    id,
+    season,
+    sessionId,
+    src,
+    tags,
+    title,
+  };
+
+  const renderMedia = () => {
+    if (fileType === "jpg" || fileType === "png") {
+      return ;
+    } else if (fileType === "mp3" || fileType === "wav") {
+      return (
+        <audio controls className="w-full h-20">
+          <source src={src} type={`audio/${fileType}`} />
+          Your browser does not support the audio tag.
+        </audio>
+      );
+    } else if (fileType === "mp4" || fileType === "mov") {
+      return (
+        <video controls className="w-full h-40">
+          <source src={src} type={`video/${fileType}`} />
+          Your browser does not support the video tag.
+        </video>
+      );
+    } else if (fileType === "pdf") {
+      return (
+        <a href={src} target="_blank" rel="noopener noreferrer" className="block w-full text-center">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded">View PDF</button>
+        </a>
+      );
+    } else if (fileType === "ppt" || fileType === "pptx") {
+      return (
+        <a href={src} target="_blank" rel="noopener noreferrer" className="block w-full text-center">
+          <button className="bg-green-500 text-white px-4 py-2 rounded">View PPT</button>
+        </a>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-4 w-64 relative"> {/* Make the container relative for positioning */}
+      <img
+        src={displayImgSrc}
+        alt={title}
+        className="w-full h-40 object-cover rounded"
+      />
+      {/* Favorite Icon */}
+      <button
+        onClick={handleToggleFavorite}
+        className="absolute top-2 right-2 p-1 rounded-full bg-white shadow"
+        aria-label="Toggle Favorite"
+      >
+        <FiHeart className={`w-6 h-6 ${favorite ? 'text-red-500' : 'text-gray-400'}`} />
+      </button>
+      <div className="media-container mb-4">
+        {renderMedia()} {/* Conditionally render image, audio, video, or link */}
+      </div>
+      <div className="card-content">
+        <h3 className="font-semibold text-lg">{title}</h3>
+        <p className="text-sm">Season: {season}</p>
+        <p className="text-sm">Day: {day}</p>
+        <p className="text-sm">Date: {date}</p>
+        {/* Tags Section */}
+        <div className="tag-box border-gray-300 pl-0 p-2 pt-0 rounded-lg">
+          {tags.map((tag, index) => (
+            <div
+              key={index}
+              className="tag-item flex items-center justify-between mb-2 bg-gray-100 p-1 rounded-lg hover:bg-gray-200 transition mx-1"
+            >
+              {isEditing === index ? (
                 <input
-                type="text"
-                value={tag}
-                  onChange={(e) => handleTagChange(index, e)} // Handle tag changes
-                  onBlur={() => handleTagSave(index)} // Save on blur
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") handleTagSave(index); // Save on Enter key
-                }}
-                autoFocus
+                  value={editNewTag}
+                  onChange={handleEditChange}
+                  className="border border-gray-300 rounded p-1 flex-grow"
                 />
-            ) : (
-                <>
-                  <span onClick={() => setIsEditing(index)}>{tag}</span> {/* Click to edit tag */ }
-                  <button onClick={() => handleDeleteTag(index)}>x</button> {/* Delete tag */ }
-                </>
-            )}
+              ) : (
+                <span
+                  onClick={() => {
+                    setIsEditing(index);
+                    setEditNewTag(tag);
+                  }}
+                  className="cursor-pointer hover:text-blue-500 text-sm px-1"
+                >
+                  {tag}
+                </span>
+              )}
+              {isEditing === index ? (
+                <button
+                  onClick={() => handleEditTag(index)} // Update existing tag
+                  className="text-red-500 ml-2 hover:bg-red-100 rounded-full p-1 transition"
+                  aria-label="Tick"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-blue-600" // Adjust the color as needed
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 12l5 5L20 7"
+                    />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleDeleteTag(index)}
+                  className="text-red-500 ml-2 hover:bg-red-100 rounded-full p-1 transition"
+                  aria-label="Delete tag"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M8 4a1 1 0 00-1 1v1H4a1 1 0 000 2h1v8a2 2 0 002 2h6a2 2 0 002-2v-8h1a1 1 0 000-2h-3V5a1 1 0 00-1-1H8zm0 2h4v1H8V6z" />
+                  </svg>
+                </button>
+              )}
             </div>
-        ))}
-
-          {/* Input for Adding New Tags */  }
-        <div className="new-tag">
+          ))}
+          <div className="flex items-center">
             <input
-            type="text"
-            value={newTag}
-            onChange={handleNewTagChange}
-            placeholder="Add new tag"
+              type="text"
+              value={newTag}
+              onChange={handleNewTagChange}
+              placeholder="Add a new tag"
+              className="border border-gray-300 rounded p-1 flex-grow mr-1"
             />
-            <button onClick={handleAddTag}>Add</button> {/* Button to add a new tag */  }
+            <button
+              onClick={handleAddTag} // Add new tag
+              className="bg-blue-500 text-white rounded  p-1 hover:bg-blue-600"
+              aria-label="Add Tag"
+            >
+              Add
+            </button>
+          </div>
         </div>
-        </div>
+      </div>
     </div>
-    </div>
-);
+  );
 };
 
 export default Card;

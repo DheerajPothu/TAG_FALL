@@ -1,16 +1,8 @@
 const Products = ({ result }) => {
-  const [photos, music] = result; // Destructure the array into photos and music
-
   return (
     <>
-      {/* Photo Cards */}
-      <section className="flex flex-wrap ml-80 mt-8 max-w-5xl">
-        {photos}
-      </section>
-
-      {/* Audio Cards */}
-      <section className="flex flex-wrap ml-80 mt-8 max-w-5xl">
-        {music}
+      <section className="ml-80 mt-16 flex flex-wrap justify-center gap-4">
+        {result}
       </section>
     </>
   );

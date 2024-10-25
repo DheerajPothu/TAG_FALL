@@ -393,3 +393,85 @@ data = [
             "title": "Talent in the Air"
         }
 ]
+
+def get_db_connection(db_name='sqlLite.db'):
+    conn = sqlite3.connect(db_name)
+    conn.row_factory = sqlite3.Row
+    return conn
+def init_db():
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    c.execute('DROP TABLE IF EXISTS uploads')
+
+    c.execute('''CREATE TABLE IF NOT EXISTS uploads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        src TEXT,
+        displayImgSrc TEXT,
+        title TEXT,
+        season TEXT,
+        day TEXT,
+        date TEXT,
+        company TEXT,
+        category TEXT,
+        playlist TEXT,
+        fileType TEXT,
+        tags TEXT,
+        sessionId TEXT,
+        favorite BOOLEAN DEFAULT FALSE  -- Add favorite column with default value
+    )''')
+    c.execute('''CREATE TABLE IF NOT EXISTS sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sessionId TEXT,
+        ip_address TEXT
+    )''')
+
+    conn.commit()
+    conn.close()
+
+def populate_db():
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    for item in data:
+        # Directly use item attributes without checking the source type
+        src = item.get("src")  # Assuming a unified 'src' key is now used
+        displayImgSrc = item.get("displayImgSrc")
+        title = item.get("title")
+        season = item.get("season") or ""
+        day = item.get("day") or ""
+        date = item.get("date") or ""
+        company = item.get("company")
+        category = item.get("category") or ""
+        playlist = item.get("playlist") or ""
+        fileType = item.get("fileType") or "unknown"  # Default if not provided
+        tags = ",".join(item.get("tags", []))  # Convert tags list to a string
+        sessionId = item.get("sessionId") or "initial"
+        
+        # Set favorite to false for all new entries
+        favorite = False
+
+        c.execute('''INSERT INTO uploads (src, displayImgSrc, title, season, day, date, company, category, playlist, fileType, tags, sessionId, favorite)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            src,
+            displayImgSrc,
+            title,
+            season,
+            day,
+            date,
+            company,
+            category,
+            playlist,
+            fileType,
+            tags,
+            sessionId,
+            favorite  # Insert false for favorite
+        ))
+
+    conn.commit()
+    conn.close()
+
+if __name__ == '__main__':
+    init_db()
+    populate_db()
