@@ -160,5 +160,37 @@ def create_session():
 
     return jsonify({"sessionId": session_id}), 201
 
+@app.route('/delete/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    # First, get the file paths before deleting the record
+    c.execute('SELECT src, displayImgSrc, sessionId FROM uploads WHERE id = ?', (item_id,))
+    item = c.fetchone()
+    
+    if not item:
+        conn.close()
+        return jsonify({"message": "Item not found"}), 404
+
+    # Delete the physical files if they exist
+    if item['src']:
+        file_path = os.path.join(CLIENT_PUBLIC_DIR, item['sessionId'], os.path.basename(item['src']))
+        if os.path.exists(file_path):
+            os.remove(file_path)
+    
+    if item['displayImgSrc']:
+        display_img_path = os.path.join(CLIENT_PUBLIC_DIR, item['sessionId'], os.path.basename(item['displayImgSrc']))
+        if os.path.exists(display_img_path):
+            os.remove(display_img_path)
+
+    # Delete the record from the database
+    c.execute('DELETE FROM uploads WHERE id = ?', (item_id,))
+    
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Item deleted successfully"}), 200
+
 if __name__ == '__main__':
     app.run(port=5004, debug=True)

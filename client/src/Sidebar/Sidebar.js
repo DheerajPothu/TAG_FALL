@@ -99,8 +99,6 @@ const Sidebar = ({
       <div className="mb-12">
         <h2 className="text-lg font-semibold text-gray-600 mb-3">Tags</h2>
         <div className="flex flex-col gap-2">
-          {" "}
-          {/* Changed flex-wrap to flex-col */}
           {allTags.map((tag, index) => (
             <label
               key={index}
@@ -110,7 +108,12 @@ const Sidebar = ({
                 type="checkbox"
                 value={tag}
                 checked={selectedTags.includes(tag)}
-                onChange={() => handleTagClick(tag)}
+                onChange={() => {
+                  const newTags = selectedTags.includes(tag)
+                    ? selectedTags.filter(t => t !== tag)
+                    : [...selectedTags, tag];
+                  handleTagSelection(newTags);
+                }}
                 className="form-checkbox h-4 w-4 text-blue-600 rounded"
               />
               <span className="text-sm capitalize">{tag}</span>

@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FiHeart } from "react-icons/fi";
-import LikedProducts from "./LikedProducts";
 import axios from "axios";
 
-const Nav = ({ handleInputChange, query, likedItems }) => {
-  const [showLikedPopup, setShowLikedPopup] = useState(false);
+const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites }) => {
   const [showUploadPopup, setShowUploadPopup] = useState(false);
   const [formData, setFormData] = useState({
     src: null,
@@ -24,10 +22,6 @@ const Nav = ({ handleInputChange, query, likedItems }) => {
   const [tagInput, setTagInput] = useState("");
   const popupRef = useRef(null);
 
-  const toggleLikedPopup = () => {
-    setShowLikedPopup(!showLikedPopup);
-  };
-
   const toggleUploadPopup = () => {
     setShowUploadPopup(!showUploadPopup);
   };
@@ -35,7 +29,6 @@ const Nav = ({ handleInputChange, query, likedItems }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
-        setShowLikedPopup(false);
         setShowUploadPopup(false);
       }
     };
@@ -105,7 +98,7 @@ const Nav = ({ handleInputChange, query, likedItems }) => {
       );
       console.log(response.data.message);
       setShowUploadPopup(false);
-  
+      window.location.reload();
       // Reset form data after upload
       setFormData({
         src: null,
@@ -139,8 +132,12 @@ const Nav = ({ handleInputChange, query, likedItems }) => {
         />
       </div>
       <div className="flex space-x-4 items-center">
-        <button onClick={toggleLikedPopup} className="text-gray-500 hover:text-gray-700">
-          <FiHeart className="w-6 h-6" />
+        <button 
+          onClick={onToggleFavoriteFilter} 
+          className={`text-gray-500 hover:text-gray-700 ${showFavorites ? 'text-red-500' : ''}`}
+          aria-label="Toggle favorites"
+        >
+          <FiHeart className={`w-6 h-6 ${showFavorites ? 'fill-current' : ''}`} />
         </button>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
@@ -148,11 +145,6 @@ const Nav = ({ handleInputChange, query, likedItems }) => {
         >
           Upload
         </button>
-        {showLikedPopup && (
-          <div ref={popupRef}>
-            <LikedProducts likedItems={likedItems} onClose={() => setShowLikedPopup(false)} />
-          </div>
-        )}
         {showUploadPopup && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div

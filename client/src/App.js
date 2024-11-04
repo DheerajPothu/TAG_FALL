@@ -30,6 +30,7 @@ function App() {
     days: [],
     dates: [],
     seasons: [],
+    favorites: false,
   });
 
   // Fetch data on component mount or when refreshKey changes
@@ -39,11 +40,10 @@ function App() {
       .get(`${apiUrl}/data`, { params: { sessionId } }) // Send sessionId as a query parameter
       .then((response) => {
         setData(response.data);
-        const tags = [...new Set(response.data.uploads.flatMap(item => item.tags || []))].sort();
-        setAllTags(tags);
+        updateAllTags(response.data.uploads);
       })
       .catch((error) => console.error("Error fetching data:", error));
-  }, [apiUrl]);
+  }, [apiUrl, refreshKey]);
   
 
   // Debounce the search query
@@ -80,12 +80,16 @@ function App() {
   };
 
   const handleCardUpdate = async (updatedItem) => {
-    setData((prevData) => ({
-      ...prevData,
-      uploads: prevData.uploads.map((item) =>
-        item.id === updatedItem.id ? { ...item, ...updatedItem } : item
-      ),
-    }));
+    setData((prevData) => {
+      const newData = {
+        ...prevData,
+        uploads: prevData.uploads.map((item) =>
+          item.id === updatedItem.id ? { ...item, ...updatedItem.object } : item
+        ),
+      };
+      updateAllTags(newData.uploads);
+      return newData;
+    });
 
     try {
       const response = await fetch(`${apiUrl}/update/${updatedItem.id}`, {
@@ -95,19 +99,17 @@ function App() {
       });
 
       if (!response.ok) throw new Error("Failed to update item");
-
-      console.log(await response.json());
     } catch (error) {
       console.error("Error updating item:", error);
     }
-    setRefreshKey((prevKey) => prevKey + 1);
   };
 
   // Filter data based on multi-selection filters, tags, and search query (title and tags)
   const filteredData = data.uploads.filter((item) => {
     const keywords = debouncedQuery.toLowerCase().split(/\s+/).filter(Boolean);
 
-    // Check if title or tags match the search query
+    const matchesFavorites = selectedFilters.favorites ? item.favorite : true;
+
     const matchesSearchQuery = keywords.every((keyword) =>
       item.title.toLowerCase().includes(keyword) ||
       (item.tags && item.tags.some(tag => tag.toLowerCase().includes(keyword)))
@@ -132,15 +134,34 @@ function App() {
       !selectedFilters.seasons.length ||
       selectedFilters.seasons.includes(item.season);
 
+    const matchesTags = 
+      selectedTags.length === 0 || 
+      (item.tags && selectedTags.every(tag => item.tags.includes(tag)));
+
     return (
+      matchesFavorites &&
       matchesSearchQuery &&
       matchesCategories &&
       matchesCompanies &&
       matchesDays &&
       matchesDates &&
-      matchesSeasons
+      matchesSeasons &&
+      matchesTags
     );
   });
+
+  const updateAllTags = (uploads) => {
+    const tags = [...new Set(uploads.flatMap(item => item.tags || []))].sort();
+    setAllTags(tags);
+  };
+
+  // Add this function to toggle favorite filter
+  const handleToggleFavoriteFilter = () => {
+    setSelectedFilters(prevFilters => ({
+      ...prevFilters,
+      favorites: !prevFilters.favorites
+    }));
+  };
 
   return (
     <>
@@ -155,7 +176,8 @@ function App() {
       <Navigation 
         query={query} 
         handleInputChange={handleInputChange} 
-        likedItems={likedItems} 
+        onToggleFavoriteFilter={handleToggleFavoriteFilter}
+        showFavorites={selectedFilters.favorites}
       />
       <Products
         result={filteredData.map((item) => (
