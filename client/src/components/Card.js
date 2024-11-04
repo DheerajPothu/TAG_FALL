@@ -302,8 +302,8 @@ const Card = ({
           // View mode
           <>
             <h3 className="font-semibold text-lg">{editedData.title}</h3>
-            {editedData.category && <p className="text-sm">Category: {editedData.category}</p>}
-            {editedData.company && <p className="text-sm">Company: {editedData.company}</p>}
+            {editedData.category && <p className="text-sm">Place: {editedData.category}</p>}
+            {editedData.company && <p className="text-sm">Type: {editedData.company}</p>}
             {editedData.season && <p className="text-sm">Season: {editedData.season}</p>}
             {editedData.day && <p className="text-sm">Day: {editedData.day}</p>}
             {editedData.date && <p className="text-sm">Date: {editedData.date}</p>}
