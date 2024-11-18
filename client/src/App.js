@@ -94,6 +94,12 @@ function App() {
         const errorData = await response.json(); // Get error data from response
         throw new Error(errorData.error || "Failed to update item"); // Use error message from response
       }
+      setData((prevData) => ({
+        ...prevData,
+        uploads: prevData.uploads.map((item) =>
+          item.id === updatedItem.id ? { ...item, ...updatedItem.object } : item
+        ),
+      }));
 
       // Return true if update is successful
       return true; 
@@ -193,7 +199,10 @@ function App() {
       favorites: !prevFilters.favorites
     }));
   };
+useEffect(()=>{      
+  updateAllTags(data.uploads)
 
+},[data])
   return (
     <>
       <ToastContainer />

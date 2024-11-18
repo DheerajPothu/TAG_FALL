@@ -74,7 +74,7 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.category || !formData.company) {
+    if (!formData.title || !formData.category || !formData.company || !formData.src || !formData.displayImgSrc) {
       toast.error("Please fill in all mandatory fields marked with *");
       return; // Prevent form submission
     }
@@ -194,6 +194,24 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
               </button>
               <h2 className="text-xl font-semibold mb-4">Upload Item</h2>
               <form onSubmit={handleFormSubmit}>
+              <div className="mb-4">
+                  <label className="block text-gray-700">File for Display Image: <span className="text-red-500">*</span></label>
+                  <input
+                    type="file"
+                    name="displayImgSrc"
+                    onChange={handleFileChange}
+                    className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700">File for Actual Source: <span className="text-red-500">*</span></label>
+                  <input
+                    type="file"
+                    name="src"
+                    onChange={handleFileChange}
+                    className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
+                  />
+                </div>
                 <div className="mb-4">
                 <label className="block text-gray-700">Title: <span className="text-red-500">*</span></label>
                 <input
@@ -317,24 +335,7 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
                     </div>
                   )}
                 </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">File for Display Image:</label>
-                  <input
-                    type="file"
-                    name="displayImgSrc"
-                    onChange={handleFileChange}
-                    className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">File for Actual Source:</label>
-                  <input
-                    type="file"
-                    name="src"
-                    onChange={handleFileChange}
-                    className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                  />
-                </div>
+
                 <div className="flex justify-end">
                   <button
                     type="submit"
