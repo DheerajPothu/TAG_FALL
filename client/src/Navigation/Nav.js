@@ -58,10 +58,23 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
   
   const handleTagAdd = () => {
     if (tagInput.trim()) {
-      if (allTags.includes(tagInput.trim())) {
-        toast.error("Tag already exists!");
+      const newTag = tagInput.trim().toLowerCase();
+      const existingTags = [
+        ...formData.tags.map(tag => tag.toLowerCase()),
+        formData.category.toLowerCase(),
+        formData.season.toLowerCase(),
+        formData.company.toLowerCase(),
+        formData.day.toLowerCase(),
+        formData.date.toLowerCase(),
+        formData.playlist.toLowerCase(),
+        formData.title.toLowerCase()
+      ];
+  
+      if (existingTags.includes(newTag)) {
+        toast.error("Tag already exists in tags or other fields!");
         return;
       }
+  
       setFormData((prev) => ({
         ...prev,
         tags: [...prev.tags, tagInput.trim()],
@@ -70,11 +83,13 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
     }
   };
 
-  const filteredTags = allTags.filter(tag => tag.toLowerCase().includes(tagInput.toLowerCase()));
+  const filteredTags = allTags.filter(tag => 
+    tag.toLowerCase().includes(tagInput.toLowerCase()) && !formData.tags.includes(tag)
+  );
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.category || !formData.company || !formData.src || !formData.displayImgSrc) {
+    if (!formData.title  || !formData.company || !formData.src || !formData.displayImgSrc) {
       toast.error("Please fill in all mandatory fields marked with *");
       return; // Prevent form submission
     }
@@ -140,6 +155,14 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
         handleInputChange({ target: { value: "" } }); // Clear the input
       }
     }
+  };
+
+  // Define the handleTagClick function
+  const handleTagClick = (tag) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      tags: [...prevFormData.tags, tag]
+    }));
   };
 
   return (
@@ -223,7 +246,7 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-gray-700">Category: <span className="text-red-500">*</span></label>
+                  <label className="block text-gray-700">Place: </label>
                   <input
                     type="text"
                     name="category"
@@ -234,7 +257,7 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
                 </div>
                 {/* Remaining input fields */}
                 <div className="mb-4">
-                  <label className="block text-gray-700">Company: <span className="text-red-500">*</span></label>
+                  <label className="block text-gray-700">Type: <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     name="company"
@@ -322,16 +345,20 @@ const Nav = ({ handleInputChange, query, onToggleFavoriteFilter, showFavorites, 
                   </div>
                   {tagInput && filteredTags.length > 0 && (
                     <div className="mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-56 overflow-y-scroll">
-                        <>
-                        <div className="text-red-8000 text-lg p-2 ">
-                          Created Tags 
+                      <>
+                        <div className="text-red-8000 text-lg p-2">
+                          Created Tags
                         </div>
-                      {filteredTags.map((tag, index) => (
-                        <div key={index} className="text-red-500 p-2">
-                          {tag}
-                        </div>
-                      ))}
-                        </>
+                        {filteredTags.map((tag, index) => (
+                          <div
+                            key={index}
+                            className="text-red-500 p-2 cursor-pointer"
+                            onClick={() => handleTagClick(tag)}
+                          >
+                            {tag}
+                          </div>
+                        ))}
+                      </>
                     </div>
                   )}
                 </div>

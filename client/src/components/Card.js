@@ -17,7 +17,7 @@ const Card = ({
   favorite: initialFavorite, // Use favorite from props
   onUpdate,
   onToggleFavorite,
-  onDelete,
+  allTags,
 }) => {
   const [tags, setTags] = useState(Array.isArray(initialTags) ? initialTags : []);
   const [isEditing, setIsEditing] = useState(null);
@@ -35,13 +35,24 @@ const Card = ({
     season,
     playlist: "",
   });
+  const [tagInput, setTagInput] = useState("");
+  const [filteredTags, setFilteredTags] = useState([]);
 
   const handleNewTagChange = (event) => {
     setNewTag(event.target.value);
   };
 
-  const handleEditChange = (event) => {
-    setEditNewTag(event.target.value);
+  const handleTagInputChange = (e) => {
+    const input = e.target.value;
+    setTagInput(input);
+    setNewTag(e.target.value);
+    setFilteredTags(
+      allTags.filter(
+        (tag) =>
+          tag.toLowerCase().includes(input.toLowerCase()) &&
+          !tags.includes(tag)
+      )
+    );
   };
 
   const handleAddTag = async () => {
@@ -54,7 +65,8 @@ const Card = ({
 
       const object = { 
         ...itemData, 
-        tags: uniqueTags // Use the unique tags list
+        tags: uniqueTags,
+        tagEdit: true // Use the unique tags list
       };
 
       // Wait for the onUpdate function to complete and check its response
@@ -69,6 +81,23 @@ const Card = ({
         console.error("Failed to add tag, update was not successful.");
       }
     }
+  };
+  const handleEditChange = (event) => {
+    setEditNewTag(event.target.value);
+  };
+  
+  const handleTagClick = (tag) => {
+    const updatedTags = [...tags, tag];
+    const uniqueTags = Array.from(new Set(updatedTags.filter(Boolean)));
+    const object = { ...itemData, tags: uniqueTags, tagEdit: true };
+
+    onUpdate({ id, object }).then((updateSuccess) => {
+      if (updateSuccess) {
+        setTags(uniqueTags);
+        setTagInput("");
+        setFilteredTags([]);
+      }
+    });
   };
 
   const handleEditTag = (index) => {
@@ -402,8 +431,8 @@ const Card = ({
           <div className="flex items-center">
             <input
               type="text"
-              value={newTag}
-              onChange={handleNewTagChange}
+              value={tagInput}
+              onChange={handleTagInputChange}
               placeholder="Add a new tag"
               className="border border-gray-300 rounded p-1 flex-grow mr-1"
             />
@@ -415,6 +444,21 @@ const Card = ({
               Add
             </button>
           </div>
+          {tagInput && filteredTags.length > 0 && (
+            <div className="mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-56 overflow-y-scroll">
+              <>
+                {filteredTags.map((tag, index) => (
+                  <div
+                    key={index}
+                    className="text-red-500 p-2 cursor-pointer"
+                    onClick={() => handleTagClick(tag)}
+                  >
+                    {tag}
+                  </div>
+                ))}
+              </>
+            </div>
+          )}
         </div>
       </div>
     </div>

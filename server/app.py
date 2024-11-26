@@ -129,35 +129,33 @@ def update_item(item_id):
     sessionId = data.get('sessionId')
     src = data.get('src')
     tags = data.get('tags', [])  # Get tags from request payload
-    # Check for existing tags in the database (case-insensitive)
+    tagEdit = data.get('tagEdit', False)  # Check if tagEdit is present
+
     conn = get_db_connection()
     c = conn.cursor()
     
-    # Fetch existing tags for the item
-    c.execute('SELECT tags FROM uploads WHERE id = ?', (item_id,))
-    existing_tags = c.fetchone()
-    print(len(tags))
-    print(existing_tags['tags'])
+    if tagEdit:
+        # Normalize input fields for comparison
+        normalized_inputs = {re.sub(r"[^a-z]", "", field.lower()) for field in [category, company, season] if field}
         
-    if len(existing_tags['tags'].split(",")) <= len(tags):
-        # Convert existing tags to a normalized form (letters only, lowercase)
-        existing_tags_list = existing_tags['tags'].split(",")
-        existing_tags_normalized = {re.sub(r"[^a-z]", "", tag.lower()) for tag in existing_tags_list}
+        # Fetch existing tags for the item
+        c.execute('SELECT tags FROM uploads WHERE id = ?', (item_id,))
+        existing_tags = c.fetchone()
+        
+        if existing_tags:
+            existing_tags_list = existing_tags['tags'].split(",")
+            existing_tags_normalized = {re.sub(r"[^a-z]", "", tag.lower()) for tag in existing_tags_list}
+            combined_tags = existing_tags_normalized.union(normalized_inputs)
 
-        if tags:  # Ensure tags list is not empty
-            # Normalize the last tag in the list
-            last_tag = re.sub(r"[^a-z]", "", tags[-1].lower())
-            if last_tag in existing_tags_normalized:
-                # Find the original matching tag for the error message
-                matching_tag = next(
-                    (tag for tag in existing_tags_list if re.sub(r"[^a-z]", "", tag.lower()) == last_tag),
-                    tags[-1]
-                )
-                conn.close()
-                return jsonify({"error": f"Tag already exists for this item."}), 400
-
-# Update the record in the uploads table based on the item_id
-
+            if tags:  # Ensure tags list is not empty
+                last_tag = re.sub(r"[^a-z]", "", tags[-1].lower())
+                if last_tag in combined_tags:
+                    matching_tag = next(
+                        (tag for tag in existing_tags_list if re.sub(r"[^a-z]", "", tag.lower()) == last_tag),
+                        tags[-1]
+                    )
+                    conn.close()
+                    return jsonify({"error": f"Tag already exists."}), 400
 
     # Update the record in the uploads table based on the item_id
     c.execute('''UPDATE uploads
@@ -216,6 +214,82 @@ def delete_item(item_id):
     conn.close()
 
     return jsonify({"message": "Item deleted successfully"}), 200
+
+@app.route('/update_filter', methods=['PUT'])
+def update_filter():
+    data = request.json
+    filter_key = data.get('filterKey')
+    old_value = data.get('oldValue')
+    new_value = data.get('newValue')
+
+    if not filter_key or old_value is None or new_value is None:
+        return jsonify({"error": "Invalid request, missing data"}), 400
+
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    # Update the filter value in the database
+    c.execute(f"UPDATE uploads SET {filter_key} = ? WHERE LOWER({filter_key}) = LOWER(?)", (new_value, old_value))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True}), 200
+
+@app.route('/delete_filter', methods=['DELETE'])
+def delete_filter():
+    data = request.json
+    filter_key = data.get('filterKey')
+    value = data.get('value')
+
+    if not filter_key or value is None:
+        return jsonify({"error": "Invalid request, missing data"}), 400
+
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    # Set the filter value to an empty string in the database to indicate deletion
+    c.execute(f"UPDATE uploads SET {filter_key} = '' WHERE LOWER({filter_key}) = LOWER(?)", (value,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True}), 200
+
+@app.route('/update_tag', methods=['PUT'])
+def update_tag():
+    data = request.json
+    old_tag = data.get('oldTag')
+    new_tag = data.get('newTag')
+
+    if not old_tag or not new_tag:
+        return jsonify({"error": "Invalid request, missing data"}), 400
+
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    # Update the tag value in the database
+    c.execute("UPDATE uploads SET tags = REPLACE(tags, ?, ?) WHERE tags LIKE ?", (old_tag, new_tag, f"%{old_tag}%"))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True}), 200
+
+@app.route('/delete_tag', methods=['DELETE'])
+def delete_tag():
+    data = request.json
+    tag = data.get('tag')
+
+    if not tag:
+        return jsonify({"error": "Invalid request, missing data"}), 400
+
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    # Remove the tag from the tags column in the database
+    c.execute("UPDATE uploads SET tags = REPLACE(tags, ?, '') WHERE tags LIKE ?", (tag, f"%{tag}%"))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True}), 200
 
 if __name__ == '__main__':
     app.run(port=5004, debug=True)

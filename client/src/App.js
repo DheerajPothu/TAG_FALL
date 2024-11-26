@@ -141,27 +141,27 @@ function App() {
   
     // Filter based on selected categories
     const matchesCategories =
-      !selectedFilters.categories.length || selectedFilters.categories.includes(item.category);
+      !selectedFilters.categories.length || selectedFilters.categories.includes(item.category.toLowerCase());
   
     // Filter based on selected companies
     const matchesCompanies =
-      !selectedFilters.companies.length || selectedFilters.companies.includes(item.company);
+      !selectedFilters.companies.length || selectedFilters.companies.includes(item.company.toLowerCase());
   
     // Filter based on selected days
     const matchesDays =
-      !selectedFilters.days.length || selectedFilters.days.includes(item.day);
+      !selectedFilters.days.length || selectedFilters.days.includes(item.day.toLowerCase());
   
     // Filter based on selected dates
     const matchesDates =
-      !selectedFilters.dates.length || selectedFilters.dates.includes(item.date);
+      !selectedFilters.dates.length || selectedFilters.dates.includes(item.date.toLowerCase());
   
     // Filter based on selected seasons
     const matchesSeasons =
-      !selectedFilters.seasons.length || selectedFilters.seasons.includes(item.season);
+      !selectedFilters.seasons.length || selectedFilters.seasons.includes(item.season.toLowerCase());
   
     // Filter based on selected tags
     const matchesTags =
-      selectedTags.length === 0 || (item.tags && selectedTags.every(tag => item.tags.includes(tag)));
+      selectedTags.length === 0 || (item.tags && selectedTags.every(tag => item.tags.includes(tag.toLowerCase())));
   
     // Check if item matches any of the search terms
     const matchesSearchQuery = searchTerms.every((term) =>
@@ -177,7 +177,7 @@ function App() {
     // Return the item if all conditions are matched
     return (
       matchesFavorites &&
-      matchesSearchQuery &&
+      itemMatchesSearchQuery &&
       matchesCategories &&
       matchesCompanies &&
       matchesDays &&
@@ -186,7 +186,6 @@ function App() {
       matchesTags
     );
   });
-  
   const updateAllTags = (uploads) => {
     const tags = [...new Set(uploads.flatMap(item => item.tags || []))].sort();
     setAllTags(tags);
@@ -231,6 +230,7 @@ useEffect(()=>{
             {...item} 
             onUpdate={handleCardUpdate} 
             onToggleFavorite={() => handleToggleFavorite(item)} 
+            allTags={allTags}
           />
         ))}
       />
