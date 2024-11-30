@@ -135,8 +135,8 @@ def update_item(item_id):
     c = conn.cursor()
     
     if tagEdit:
-        # Normalize input fields for comparison
-        normalized_inputs = {re.sub(r"[^a-z]", "", field.lower()) for field in [category, company, season] if field}
+        # Normalize input fields for comparison, including numeric characters
+        normalized_inputs = {re.sub(r"[^a-z0-9]", "", field.lower()) for field in [category, company, season] if field}
         
         # Fetch existing tags for the item
         c.execute('SELECT tags FROM uploads WHERE id = ?', (item_id,))
@@ -144,14 +144,14 @@ def update_item(item_id):
         
         if existing_tags:
             existing_tags_list = existing_tags['tags'].split(",")
-            existing_tags_normalized = {re.sub(r"[^a-z]", "", tag.lower()) for tag in existing_tags_list}
+            existing_tags_normalized = {re.sub(r"[^a-z0-9]", "", tag.lower()) for tag in existing_tags_list}
             combined_tags = existing_tags_normalized.union(normalized_inputs)
 
             if tags:  # Ensure tags list is not empty
-                last_tag = re.sub(r"[^a-z]", "", tags[-1].lower())
+                last_tag = re.sub(r"[^a-z0-9]", "", tags[-1].lower())
                 if last_tag in combined_tags:
                     matching_tag = next(
-                        (tag for tag in existing_tags_list if re.sub(r"[^a-z]", "", tag.lower()) == last_tag),
+                        (tag for tag in existing_tags_list if re.sub(r"[^a-z0-9]", "", tag.lower()) == last_tag),
                         tags[-1]
                     )
                     conn.close()
@@ -284,8 +284,17 @@ def delete_tag():
     conn = get_db_connection()
     c = conn.cursor()
 
-    # Remove the tag from the tags column in the database
-    c.execute("UPDATE uploads SET tags = REPLACE(tags, ?, '') WHERE tags LIKE ?", (tag, f"%{tag}%"))
+    # Fetch all uploads to update the tags
+    c.execute("SELECT id, tags FROM uploads WHERE tags LIKE ?", (f"%{tag}%",))
+    uploads = c.fetchall()
+
+    for upload in uploads:
+        tags_list = upload['tags'].split(',')
+        if tag in tags_list:
+            tags_list.remove(tag)
+            new_tags = ",".join(tags_list)
+            c.execute("UPDATE uploads SET tags = ? WHERE id = ?", (new_tags, upload['id']))
+
     conn.commit()
     conn.close()
 

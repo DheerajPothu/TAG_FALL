@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FiHeart, FiMoreVertical, FiEdit2 } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const Card = ({
   category,
@@ -76,6 +77,7 @@ const Card = ({
         // Only update the tags state if the update was successful
         setTags(uniqueTags); // Update state with unique tags
         setNewTag(""); // Clear the input field
+        setTagInput(""); // Clear the input field
       } else {
         // Optionally handle the case where the update failed
         console.error("Failed to add tag, update was not successful.");
@@ -162,16 +164,20 @@ const Card = ({
   };
 
   const renderMedia = () => {
-    if (fileType === "jpg" || fileType === "png") {
-      return; // Existing image handling
-    } else if (fileType === "mp3" || fileType === "wav") {
+    if (fileType === "jpg" || fileType === "jpeg" || fileType === "png" || fileType === "gif" || fileType === "webp") {
+      return     <>
+      <a href={src} target="_blank" rel="noopener noreferrer" className = "block w-full text-center mt-2">
+        <button className="bg-blue-500 text-white px-4 py-2 rounded">View Image</button>
+      </a>
+    </>
+    } else if (fileType === "mp3" || fileType === "m4a") {
       return (
         <audio controls className="w-full h-20">
           <source src={src} type={`audio/${fileType}`} />
           Your browser does not support the audio tag.
         </audio>
       );
-    } else if (fileType === "mp4" || fileType === "mov") {
+    } else if (fileType === "mp4") {
       return (
         <video controls className="w-full h-40">
           <source src={src} type={`video/${fileType}`} />
@@ -202,6 +208,24 @@ const Card = ({
           <button className="bg-gray-500 text-white px-4 py-2 rounded">View File</button>
         </a>
       );
+    } else if (fileType === "zip" || fileType === "rar" || fileType === "tar") {
+      return (
+        <a href={src} target="_blank" rel="noopener noreferrer" className="block w-full text-center">
+          <button className="bg-purple-500 text-white px-4 py-2 rounded">Download Archive</button>
+        </a>
+      );
+    } else if (fileType === "exe" || fileType === "apk" || fileType === "bin" || fileType === "jar") {
+      return (
+        <a href={src} target="_blank" rel="noopener noreferrer" className="block w-full text-center">
+          <button className="bg-red-500 text-white px-4 py-2 rounded">Download Executable</button>
+        </a>
+      );
+    } else if (fileType === "sql" || fileType === "mdb" || fileType === "sqlite" || fileType === "db" || fileType === "c" || fileType === "java" || fileType === "cs" || fileType === "js" || fileType === "py" || fileType === "php" || fileType === "html" || fileType === "ts" || fileType === "css" || fileType === "json" || fileType === "jsx" || fileType === "md") {
+      return (
+        <a href={src} target="_blank" rel="noopener noreferrer" className="block w-full text-center">
+          <button className="bg-teal-500 text-white px-4 py-2 rounded">View Code</button>
+        </a>
+      );
     }
     return null;
   };
@@ -219,6 +243,11 @@ const Card = ({
       ...itemData,
       ...editedData,
     };
+
+    if (!object.title  || !object.company ) {
+      toast.error("Please fill in all mandatory fields marked with *");
+      return; // Prevent form submission
+    }
     onUpdate({ id, object });
     setIsEditingFields(false);
   };
@@ -279,7 +308,7 @@ const Card = ({
           // Edit mode
           <div className="space-y-2">
             <div>
-              <label className="text-sm text-gray-600">Title:</label>
+              <label className="text-sm text-gray-600">Title:  <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 name="title"
@@ -289,7 +318,7 @@ const Card = ({
               />
             </div>
             <div>
-              <label className="text-sm text-gray-600">Category:</label>
+              <label className="text-sm text-gray-600">Place:</label>
               <input
                 type="text"
                 name="category"
@@ -299,7 +328,7 @@ const Card = ({
               />
             </div>
             <div>
-              <label className="text-sm text-gray-600">Company:</label>
+              <label className="text-sm text-gray-600">Type:  <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 name="company"

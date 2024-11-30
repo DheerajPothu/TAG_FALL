@@ -16,17 +16,32 @@ const Sidebar = ({
     date: [],
     season: [],
   });
-  const [editMode, setEditMode] = useState({});
-  const [editValue, setEditValue] = useState({});
-  const [editTagMode, setEditTagMode] = useState(null);
-  const [editTagValue, setEditTagValue] = useState("");
 
   useEffect(() => {
-    const extractUniqueValues = (key) => {
-      const uniqueValues = [...new Set(data.map((item) => item[key]?.toLowerCase()))].filter(Boolean);
-      return uniqueValues.map(value => value.charAt(0).toUpperCase() + value.slice(1));
-    };
-
+    const category = [...new Set(data.map((item) => item.category))].filter(
+      Boolean
+    );
+    const company = [...new Set(data.map((item) => item.company))].filter(
+      Boolean
+    );
+    const day = [...new Set(data.map((item) => item.day))].filter(Boolean);
+    const date = [...new Set(data.map((item) => item.date))].filter(Boolean);
+    const season = [...new Set(data.map((item) => item.season))].filter(
+      Boolean
+    );
+    
+    setFilters({
+      ...(category.length && { category }),
+      ...(company.length && { company }),
+      ...(day.length && { day }),
+      ...(date.length && { date }),
+      ...(season.length && { season }),
+    });
+  }, [data]);
+  useEffect(() => {
+    const extractUniqueValues = (key) => 
+      [...new Set(data.map((item) => item[key]))].filter(Boolean);
+  
     setFilters({
       category: extractUniqueValues('category'),
       company: extractUniqueValues('company'),
@@ -35,6 +50,11 @@ const Sidebar = ({
       season: extractUniqueValues('season'),
     });
   }, [data]);
+  
+  const [editMode, setEditMode] = useState({});
+  const [editValue, setEditValue] = useState({});
+  const [editTagMode, setEditTagMode] = useState(null);
+  const [editTagValue, setEditTagValue] = useState("");
 
   const handleMultiSelectChange = (filterKey, value) => {
     const normalizedValue = value.toLowerCase();
@@ -66,6 +86,8 @@ const Sidebar = ({
   const handleSaveEdit = (filterKey, oldValue) => {
     const newValue = editValue[filterKey];
     if (newValue && newValue.trim() !== oldValue) {
+      if (window.confirm(`Are you sure you want to Edit the filter value "${newValue}"?`)) {
+
       // Send request to update filter value
       fetch(`${process.env.REACT_APP_API_URL}/update_filter`, {
         method: 'PUT',
@@ -88,6 +110,7 @@ const Sidebar = ({
           alert("Failed to update filter value.");
         }
       });
+    }
     } else {
       setEditMode({});
     }

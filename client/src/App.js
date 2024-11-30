@@ -27,11 +27,11 @@ function App() {
   const [likedItems, setLikedItems] = useState([]); 
   const apiUrl = process.env.REACT_APP_API_URL;
   const [selectedFilters, setSelectedFilters] = useState({
-    categories: [],
-    companies: [],
-    days: [],
-    dates: [],
-    seasons: [],
+    category: [],
+    company: [],
+    day: [],
+    date: [],
+    season: [],
     favorites: false,
   });
   const [searchTerms, setSearchTerms] = useState([]);
@@ -66,6 +66,8 @@ function App() {
       ...prevFilters,
       [filterName]: selectedValues,
     }));
+    console.log("Selected Filters:", selectedFilters);
+    console.log("Selected Values:", selectedValues);
   };
 
   const handleTagSelection = (selectedTags) => {
@@ -119,14 +121,13 @@ function App() {
   const handleRemoveSearchTerm = (term) => {
     setSearchTerms((prev) => prev.filter((t) => t !== term));
   };
-
+  
   const filteredData = data.uploads.filter((item) => {
     // Split the search query into keywords based on commas and remove any empty strings
     const keywords = debouncedQuery.toLowerCase().split(",").map(keyword => keyword.trim()).filter(Boolean);
   
     // Check for favorite filter
     const matchesFavorites = selectedFilters.favorites ? item.favorite : true;
-  
     // Check if the item matches the search query (across multiple fields) for each keyword
     const itemMatchesSearchQuery = keywords.every((keyword) => 
       // Check each field if the keyword is found (partial, case-insensitive match)
@@ -139,30 +140,29 @@ function App() {
       (item.season && item.season.toLowerCase().includes(keyword))
     );
   
-    // Filter based on selected categories
-    const matchesCategories =
-      !selectedFilters.categories.length || selectedFilters.categories.includes(item.category.toLowerCase());
+    // Filter based on selected category
+    const matchescategory =
+      !selectedFilters.category.length || selectedFilters.category.includes(item.category.toLowerCase());
   
-    // Filter based on selected companies
-    const matchesCompanies =
-      !selectedFilters.companies.length || selectedFilters.companies.includes(item.company.toLowerCase());
+    // Filter based on selected company
+    const matchescompany =
+      !selectedFilters.company.length || selectedFilters.company.includes(item.company.toLowerCase());
   
-    // Filter based on selected days
-    const matchesDays =
-      !selectedFilters.days.length || selectedFilters.days.includes(item.day.toLowerCase());
+    // Filter based on selected day
+    const matchesday =
+      !selectedFilters.day.length || selectedFilters.day.includes(item.day.toLowerCase());
   
-    // Filter based on selected dates
-    const matchesDates =
-      !selectedFilters.dates.length || selectedFilters.dates.includes(item.date.toLowerCase());
+    // Filter based on selected date
+    const matchesdate =
+      !selectedFilters.date.length || selectedFilters.date.includes(item.date.toLowerCase());
   
-    // Filter based on selected seasons
-    const matchesSeasons =
-      !selectedFilters.seasons.length || selectedFilters.seasons.includes(item.season.toLowerCase());
+    // Filter based on selected season
+    const matchesseason =
+      !selectedFilters.season.length || selectedFilters.season.includes(item.season.toLowerCase());
   
     // Filter based on selected tags
     const matchesTags =
       selectedTags.length === 0 || (item.tags && selectedTags.every(tag => item.tags.includes(tag.toLowerCase())));
-  
     // Check if item matches any of the search terms
     const matchesSearchQuery = searchTerms.every((term) =>
       item.title.toLowerCase().includes(term.toLowerCase()) ||
@@ -178,12 +178,13 @@ function App() {
     return (
       matchesFavorites &&
       itemMatchesSearchQuery &&
-      matchesCategories &&
-      matchesCompanies &&
-      matchesDays &&
-      matchesDates &&
-      matchesSeasons &&
-      matchesTags
+      matchescategory &&
+      matchescompany &&
+      matchesday &&
+      matchesdate &&
+      matchesseason &&
+      matchesTags &&
+      matchesSearchQuery // Include this condition
     );
   });
   const updateAllTags = (uploads) => {
@@ -205,14 +206,15 @@ useEffect(()=>{
   return (
     <>
       <ToastContainer />
+
       <Sidebar
-        data={data.uploads}
-        selectedFilters={selectedFilters}
-        handleFilterChange={handleFilterChange}
-        allTags={allTags}
-        selectedTags={selectedTags}
-        handleTagSelection={handleTagSelection}
-      />
+  data={data.uploads}
+  selectedFilters={selectedFilters}
+  handleFilterChange={handleFilterChange}
+  allTags={allTags}
+  selectedTags={selectedTags}
+  handleTagSelection={handleTagSelection}
+/>
       <Navigation 
         query={query} 
         handleInputChange={handleInputChange} 
