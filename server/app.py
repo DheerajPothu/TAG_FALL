@@ -266,6 +266,16 @@ def update_tag():
     conn = get_db_connection()
     c = conn.cursor()
 
+    # Fetch all uploads to check for existing new_tag
+    c.execute("SELECT id, tags FROM uploads WHERE tags LIKE ?", (f"%{old_tag}%",))
+    uploads = c.fetchall()
+
+    for upload in uploads:
+        tags_list = upload['tags'].split(',')
+        if new_tag in tags_list:
+            conn.close()
+            return jsonify({"error": "A same tag already exists in a file"}), 400
+
     # Update the tag value in the database
     c.execute("UPDATE uploads SET tags = REPLACE(tags, ?, ?) WHERE tags LIKE ?", (old_tag, new_tag, f"%{old_tag}%"))
     conn.commit()

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiEdit2, FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { toast } from 'react-toastify';
 
 const Sidebar = ({
   data,
@@ -85,8 +86,9 @@ const Sidebar = ({
 
   const handleSaveEdit = (filterKey, oldValue) => {
     const newValue = editValue[filterKey];
+    let type = filterKey === 'category' ? 'place' : filterKey === 'company' ? 'type' : filterKey;
     if (newValue && newValue.trim() !== oldValue) {
-      if (window.confirm(`Are you sure you want to Edit the filter value "${newValue}"?`)) {
+      if (window.confirm(`Are you sure you want to Edit the ${type} value "${newValue}"?`)) {
 
       // Send request to update filter value
       fetch(`${process.env.REACT_APP_API_URL}/update_filter`, {
@@ -117,7 +119,8 @@ const Sidebar = ({
   };
 
   const handleDeleteFilter = (filterKey, value) => {
-    if (window.confirm(`Are you sure you want to delete the filter value "${value}"?`)) {
+    let type = filterKey === 'category' ? 'place' : filterKey === 'company' ? 'type' : filterKey;
+    if (window.confirm(`Are you sure you want to delete the ${type} value "${value}"?`)) {
       // Send request to delete filter value
       fetch(`${process.env.REACT_APP_API_URL}/delete_filter`, {
         method: 'DELETE',
@@ -166,8 +169,11 @@ const Sidebar = ({
           setEditTagMode(null);
           window.location.reload();
         } else {
-          alert("Failed to update tag value.");
+          toast.error(data.error);
         }
+      })
+      .catch((err) => {
+        toast.error(err.error);
       });
     } else {
       setEditTagMode(null);
@@ -243,12 +249,16 @@ const Sidebar = ({
                 ) : (
                   <>
                     <span className="text-sm capitalize flex-grow">{value}</span>
-                    <button onClick={() => handleEditFilter(filterKey, value)} className="text-gray-500 hover:text-gray-700">
-                      <FiEdit2 />
-                    </button>
-                    <button onClick={() => handleDeleteFilter(filterKey, value)} className="text-gray-500 hover:text-gray-700">
-                      <FiTrash2 />
-                    </button>
+                    {filterKey !== 'company' && (
+                      <>
+                        <button onClick={() => handleEditFilter(filterKey, value)} className="text-gray-500 hover:text-gray-700">
+                          <FiEdit2 />
+                        </button>
+                        <button onClick={() => handleDeleteFilter(filterKey, value)} className="text-gray-500 hover:text-gray-700">
+                          <FiTrash2 />
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
               </div>
